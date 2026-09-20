@@ -1,0 +1,76 @@
+{
+  "manifest_version": 3,
+  "name": "AI AutoFlow - Smart Question Automator (Gemini, ChatGPT, Perplexity, Claude)",
+  "version": "1.1.0",
+  "description": "Automate question workflows across Gemini, ChatGPT, Perplexity & Claude: ask 10 complex questions, queue them, wait, scroll down for 5s, and auto-send.",
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://gemini.google.com/*",
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*",
+    "https://www.perplexity.ai/*",
+    "https://perplexity.ai/*",
+    "https://claude.ai/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "AI AutoFlow Control Center",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://gemini.google.com/*",
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://www.perplexity.ai/*",
+        "https://perplexity.ai/*",
+        "https://claude.ai/*"
+      ],
+      "js": [
+        "content/platform-dom.js",
+        "content/automation-runner.js",
+        "content/floating-hud.js"
+      ],
+      "css": [
+        "content/floating-hud.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "icons/*.png",
+        "content/floating-hud.css"
+      ],
+      "matches": [
+        "https://gemini.google.com/*",
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://www.perplexity.ai/*",
+        "https://perplexity.ai/*",
+        "https://claude.ai/*"
+      ]
+    }
+  ]
+}

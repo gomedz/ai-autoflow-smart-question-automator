@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI AutoFlow</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="brand">
+        <div class="logo-wrap">
+          <img class="brand-logo-img" src="../icons/icon-48.png" alt="AI AutoFlow Logo">
+        </div>
+        <div class="brand-text">
+          <h1>AI AutoFlow</h1>
+          <span class="version-tag">v1.1 • Multi-AI Automator</span>
+        </div>
+      </div>
+      <div class="header-status">
+        <button class="hud-quick-btn" id="btn-show-hud" title="Show or Reset In-Page Floating HUD">📍 In-Page HUD</button>
+        <span class="status-badge status-idle" id="badge-status">IDLE</span>
+      </div>
+    </header>
+
+    <!-- Platform Selector Bar (4 Options: Gemini, ChatGPT, Perplexity, Claude) -->
+    <section class="platform-selector-section">
+      <div class="platform-selector-label">
+        <span>Target AI Platform:</span>
+        <span class="platform-detected-pill" id="platform-detected-pill">Auto-Detect</span>
+      </div>
+      <div class="platform-cards-grid" id="platform-cards-grid">
+        <button class="platform-card active" data-platform="gemini" title="Google Gemini">
+          <span class="plat-icon">✨</span>
+          <span class="plat-name">Gemini</span>
+          <span class="plat-status-dot"></span>
+        </button>
+        <button class="platform-card" data-platform="chatgpt" title="OpenAI ChatGPT">
+          <span class="plat-icon">🟢</span>
+          <span class="plat-name">ChatGPT</span>
+          <span class="plat-status-dot"></span>
+        </button>
+        <button class="platform-card" data-platform="perplexity" title="Perplexity AI">
+          <span class="plat-icon">🔵</span>
+          <span class="plat-name">Perplexity</span>
+          <span class="plat-status-dot"></span>
+        </button>
+        <button class="platform-card" data-platform="claude" title="Anthropic Claude">
+          <span class="plat-icon">🟠</span>
+          <span class="plat-name">Claude</span>
+          <span class="plat-status-dot"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="popup-main">
+      <!-- Active Tab Check Banner (shown if not currently on the selected AI site) -->
+      <div class="notice-banner" id="not-ai-banner" style="display: none;">
+        <div class="notice-icon">⚡</div>
+        <div class="notice-content">
+          <span id="not-ai-text">Selected platform is not open in the active tab.</span>
+          <button class="notice-btn" id="open-platform-btn">Open in New Tab</button>
+        </div>
+      </div>
+
+      <!-- Live Execution Tracker Card -->
+      <section class="tracker-card">
+        <div class="tracker-header">
+          <div class="tracker-title-wrap">
+            <span class="tracker-indicator" id="tracker-indicator"></span>
+            <span class="tracker-state-title" id="tracker-state-title">Ready to Automate</span>
+          </div>
+          <span class="tracker-step-count" id="tracker-step-count">0 / 10</span>
+        </div>
+
+        <div class="tracker-details" id="tracker-details">
+          Click <strong>Start Auto Flow</strong> to send the initial prompt requesting questions.
+        </div>
+
+        <!-- Waiting / Scrolling Progress Bar -->
+        <div class="progress-container" id="tracker-progress-container" style="display: none;">
+          <div class="progress-labels">
+            <span id="progress-mode-label">Waiting Delay</span>
+            <span id="progress-timer-val">10s</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-bar" id="tracker-progress-bar"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Action Buttons -->
+      <div class="controls-grid">
+        <button class="btn btn-primary" id="btn-start">
+          <span class="btn-icon">▶</span>
+          <span>Start Auto Flow</span>
+        </button>
+        <button class="btn btn-secondary" id="btn-pause" style="display: none;">
+          <span class="btn-icon">❚❚</span>
+          <span>Pause</span>
+        </button>
+        <button class="btn btn-secondary" id="btn-resume" style="display: none;">
+          <span class="btn-icon">▶</span>
+          <span>Resume</span>
+        </button>
+        <button class="btn btn-danger" id="btn-stop" style="display: none;">
+          <span class="btn-icon">■</span>
+          <span>Stop</span>
+        </button>
+      </div>
+
+      <!-- Tabs / Accordion -->
+      <div class="section-tabs">
+        <button class="tab-btn active" data-tab="config">Configuration</button>
+        <button class="tab-btn" data-tab="queue">Questions Queue (<span id="tab-q-count">0</span>)</button>
+        <button class="tab-btn" data-tab="logs">Activity Log</button>
+      </div>
+
+      <!-- Tab 1: Configuration -->
+      <section class="tab-pane active" id="tab-config">
+        <!-- Topic Setup -->
+        <div class="form-group">
+          <label for="input-topic">Topic for Questions / Prompts:</label>
+          <input type="text" id="input-topic" placeholder="e.g. Quantum Computing, Cyberpunk Landscapes, Macroeconomics" value="Artificial Intelligence ethics and future consciousness">
+          <div class="preset-chips">
+            <span class="chip" data-topic="Artificial Intelligence ethics & AGI alignment">AI Alignment</span>
+            <span class="chip" data-topic="Quantum Computing and cryptography frontiers">Quantum</span>
+            <span class="chip" data-topic="Futuristic cyberpunk cityscapes with neon reflections">Cyberpunk</span>
+            <span class="chip" data-topic="Cosmological paradoxes & Fermi Paradox">Cosmology</span>
+            <span class="chip" data-topic="Philosophy of mind, consciousness & qualia">Philosophy</span>
+          </div>
+        </div>
+
+        <!-- Flow Parameters & Timing Settings -->
+        <div class="timing-settings-card">
+          <!-- Total Questions -->
+          <div class="timing-row">
+            <div class="timing-info">
+              <span class="timing-label">Total Questions / Prompts:</span>
+              <span class="timing-sub">Condition 1 & 2: Questions to generate & auto-send</span>
+            </div>
+            <div class="timing-input-wrap">
+              <input type="number" id="input-question-count" min="1" max="50" value="10">
+              <span class="unit">questions</span>
+            </div>
+          </div>
+          <div class="preset-chips count-chips" id="count-preset-chips">
+            <span class="chip chip-count" data-count="3">3 Qs</span>
+            <span class="chip chip-count" data-count="5">5 Qs</span>
+            <span class="chip chip-count active-chip" data-count="10">10 Qs</span>
+            <span class="chip chip-count" data-count="15">15 Qs</span>
+            <span class="chip chip-count" data-count="20">20 Qs</span>
+          </div>
+
+          <div class="timing-row" style="margin-top: 4px;">
+            <div class="timing-info">
+              <span class="timing-label">Waiting Time (per message):</span>
+              <span class="timing-sub">Condition 3: Delay before sending</span>
+            </div>
+            <div class="timing-input-wrap">
+              <input type="number" id="input-waiting-time" min="3" max="300" value="10">
+              <span class="unit">sec</span>
+            </div>
+          </div>
+
+          <div class="timing-row locked">
+            <div class="timing-info">
+              <span class="timing-label">Slow Scroll Duration:</span>
+              <span class="timing-sub">Condition 4: Downward scroll</span>
+            </div>
+            <div class="timing-input-wrap">
+              <span class="locked-value">5.0 sec</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating HUD Overlay Display Option -->
+        <div class="hud-toggle-card">
+          <div class="hud-toggle-info">
+            <div class="hud-toggle-title-row">
+              <span class="hud-toggle-icon">📌</span>
+              <span class="timing-label">Floating HUD Overlay</span>
+            </div>
+            <span class="timing-sub">Show draggable in-page HUD on AI websites</span>
+          </div>
+          <label class="switch-toggle" title="Toggle In-Page Floating HUD on or off">
+            <input type="checkbox" id="toggle-floating-hud" checked>
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+
+        <!-- Initial Prompt Template Drawer -->
+        <details class="prompt-details">
+          <summary>View / Customize Starter Prompt</summary>
+          <div class="prompt-editor-wrap">
+            <div class="prompt-template-chips">
+              <span class="chip chip-prompt active-chip" id="btn-prompt-questions" title="Starter prompt for generating complex questions">
+                ❓ Complex Questions
+              </span>
+              <span class="chip chip-prompt" id="btn-prompt-images" title="Starter prompt for generating text-to-image prompts">
+                🎨 Image Prompts
+              </span>
+            </div>
+            <textarea id="input-custom-prompt" rows="3" placeholder="Prompt template using {topic} and {count}"></textarea>
+            <div class="prompt-footer-row">
+              <span class="prompt-vars-hint">Vars: <code>{topic}</code> <code>{count}</code></span>
+              <button class="btn-text" id="btn-reset-prompt">Reset to Default</button>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Tab 2: Questions Queue -->
+      <section class="tab-pane" id="tab-queue">
+        <div class="queue-list" id="queue-list">
+          <div class="empty-queue-msg">
+            No questions loaded yet.<br>Start the flow or wait for the AI to generate them!
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab 3: Activity Log -->
+      <section class="tab-pane" id="tab-logs">
+        <div class="logs-console" id="logs-console">
+          <div class="log-entry log-info">[00:00:00] AI AutoFlow ready.</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="popup-footer">
+      <div class="footer-left">
+        <button class="btn-donate" id="btn-donate" title="Support the project / Buy me a coffee">
+          <span class="donate-icon">☕</span> Donate
+        </button>
+        <span id="footer-platform-label" class="footer-platform-hint">Supports 4 AIs</span>
+      </div>
+      <div class="footer-actions">
+        <button class="btn-text-sm" id="btn-restore-hud-footer" title="Re-anchor and show the Floating HUD on the page">📍 Reset HUD</button>
+        <button class="btn-text-sm" id="btn-reset-all">Reset All</button>
+      </div>
+    </footer>
+
+    <!-- Donation Modal Dialog -->
+    <div class="donate-modal-overlay" id="donate-modal" style="display: none;" aria-hidden="true">
+      <div class="donate-modal-backdrop" id="donate-backdrop"></div>
+      <div class="donate-modal-card">
+        <div class="donate-modal-header">
+          <div class="donate-header-brand">
+            <span class="donate-header-icon">☕</span>
+            <div class="donate-header-text">
+              <h3>Support AI AutoFlow</h3>
+              <span class="donate-header-badge">Community</span>
+            </div>
+          </div>
+          <button class="donate-modal-close" id="btn-close-donate" title="Close">✕</button>
+        </div>
+
+        <p class="donate-intro">
+          If you found this project helpful, consider buying me a coffee...
+        </p>
+
+        <div class="donate-links-grid">
+          <!-- Trakteer ID -->
+          <div class="donate-channel-card">
+            <div class="donate-channel-left">
+              <span class="channel-badge badge-trakteer">Trakteer ID</span>
+              <a href="https://teer.id/gmd.inc" target="_blank" rel="noopener noreferrer" class="channel-url-link donate-ext-link">
+                https://teer.id/gmd.inc
+              </a>
+            </div>
+            <a href="https://teer.id/gmd.inc" target="_blank" rel="noopener noreferrer" class="btn-channel-action donate-ext-link" title="Open Trakteer">
+              Visit ↗
+            </a>
+          </div>
+
+          <!-- Buy me a coffee -->
+          <div class="donate-channel-card">
+            <div class="donate-channel-left">
+              <span class="channel-badge badge-coffee">Buy me a coffee</span>
+              <a href="https://www.buymeacoffee.com/gmd.inc" target="_blank" rel="noopener noreferrer" class="channel-url-link donate-ext-link">
+                https://www.buymeacoffee.com/gmd.inc
+              </a>
+            </div>
+            <a href="https://www.buymeacoffee.com/gmd.inc" target="_blank" rel="noopener noreferrer" class="btn-channel-action donate-ext-link" title="Open Buy Me A Coffee">
+              Visit ↗
+            </a>
+          </div>
+
+          <!-- Crypto -->
+          <div class="donate-channel-card crypto-card">
+            <div class="donate-channel-left">
+              <div class="crypto-title-row">
+                <span class="channel-badge badge-crypto">Crypto (USDT / ETH / EVM)</span>
+              </div>
+              <div class="crypto-addr-display" id="crypto-addr" title="Click to copy">0x8cD08357a2a56ed90D0137AE7bee324bd772B90d</div>
+            </div>
+            <button class="btn-channel-action btn-copy-action" id="btn-copy-crypto" title="Copy Crypto Address">
+              📋 Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="donate-modal-footer">
+          <span>❤️ Thank you for supporting open-source development!</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
