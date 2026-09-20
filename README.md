@@ -23,7 +23,7 @@ Each run follows 6 automatic stages:
 
 ## Features
 
-- **Two prompt modes** — Generate complex questions *or* detailed image prompts (for Midjourney, DALL-E, etc.)
+- **Two prompt modes** — Generate complex questions *or* detailed image prompts
 - **Configurable** — Set topic, number of questions (3–20), and waiting delay
 - **Floating HUD** — Draggable on-page overlay that shows live status, countdown, and controls
 - **Activity Log** — Timestamped log of every automation event in the popup
